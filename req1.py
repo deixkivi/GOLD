@@ -1,5 +1,5 @@
 
-from wskaznik1 import select_all_tasks
+
 import requests
 import json
 from requests.exceptions import HTTPError
@@ -8,7 +8,7 @@ from sys import argv
 from os import getenv
 from dotenv import load_dotenv 
 from create1 import Create
-import wskaznik1
+from wskaznik import Wskaznik
 
 
 load_dotenv()
@@ -27,6 +27,7 @@ if len(argv) == 2 and argv[1] == 'insert':
     py req1.py insert
     """
     topCount = (int(input('Z ilu ostatnich dni dane mają być zaciągnięte?\n')))
+   
     def get_rates_of_gold(topCount):
         try:
         
@@ -79,7 +80,7 @@ if len(argv) == 2 and argv[1] == 'insert':
             
             conn.commit()
             print("Python Variables inserted successfully into SqliteDb_developers table")
-            wskaznik1.select_all_tasks(conn)
+            Wskaznik.select_all_tasks(conn)
             cursor.close()
 
         except sqlite3.Error as error:
@@ -88,6 +89,7 @@ if len(argv) == 2 and argv[1] == 'insert':
             if conn:
                 conn.close()
                 print("The SQLite connection is closed")
+    
         
 
     if __name__ == '__main__':

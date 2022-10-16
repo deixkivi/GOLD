@@ -25,14 +25,18 @@ class Wskaznik:
         :param conn: the Connection object
         :return:
         """
+        
         cur = conn.cursor()
-        cur.execute("SELECT VALUE, MID FROM GOLD")
+        cur.execute("SELECT ID, VALUE, MID FROM GOLD")
+        
 
         rows = cur.fetchall()
-
         for row in rows:
-            d = 0
-            d += d
+            cur.execute(
+                "UPDATE GOLD SET WSKAZNIK = :wartosc_1 WHERE id = :biezace_id",
+                {"wartosc_1": row["VALUE"] + row["MID"],
+                "biezace_id": row["ID"],}
+            )
 
             
 
