@@ -71,57 +71,96 @@ if len(argv) == 2 and argv[1] == 'insert':
     downloading and inserting data into db
     py req1.py insert
     """
-    topCount = (int(input('Z ilu ostatnich dni dane mają być zaciągnięte?\n')))
-    currency = ['USD', 'GBP', 'EUR']
-    for i in range(len(currency)):
+    topCount = (int(input('Z ilu ostatnich dni dane mają być zaciągnięte?\n')))    
     #Pobieranie informacji o cenie złota
-        def get_rates_of_gold(topCount):
+    def get_rates_of_gold(topCount):
+    
+        try:        
+            url = f"http://api.nbp.pl/api/cenyzlota/last/{topCount}"
+            response = requests.get(url)
+        except HTTPError as http_error:
+            print(f'HTTP error: {http_error}')
+        except Exception as e:
+            print(f'Other exception: {e}')
+        else:
+            if response.status_code == 200:
+                return json.dumps(
+                    response.json(),
+                    indent=4,
+                    sort_keys=True), response.json()
+    #Pobieranie informacji o cenie waluty USD
+    def get_rates_of_usd(topCount):
+        currency = 'USD'
+        try:
+            table = "A"                
+            url = f"http://api.nbp.pl/api/exchangerates/rates/{table}/{currency}/last/{topCount}/"
+            response = requests.get(url)
+        except HTTPError as http_error:
+            print(f'HTTP error: {http_error}')
+        except Exception as e:
+            print(f'Other exception: {e}')
+        else:
+            if response.status_code == 200:
+                return json.dumps(
+                    response.json(),
+                    indent=4,
+                    sort_keys=True), response.json()
+    #Pobieranie informacji o cenie waluty GBP
+    def get_rates_of_gbp(topCount):
+        currency = 'GBP'
+        try:
+            table = "A"                
+            url = f"http://api.nbp.pl/api/exchangerates/rates/{table}/{currency}/last/{topCount}/"
+            response = requests.get(url)
+        except HTTPError as http_error:
+            print(f'HTTP error: {http_error}')
+        except Exception as e:
+            print(f'Other exception: {e}')
+        else:
+            if response.status_code == 200:
+                return json.dumps(
+                    response.json(),
+                    indent=4,
+                    sort_keys=True), response.json()
+    #Pobieranie informacji o cenie waluty EUR
+    def get_rates_of_eur(topCount):
+        currency = 'EUR'
+        try:
+            table = "A"                
+            url = f"http://api.nbp.pl/api/exchangerates/rates/{table}/{currency}/last/{topCount}/"
+            response = requests.get(url)
+        except HTTPError as http_error:
+            print(f'HTTP error: {http_error}')
+        except Exception as e:
+            print(f'Other exception: {e}')
+        else:
+            if response.status_code == 200:
+                return json.dumps(
+                    response.json(),
+                    indent=4,
+                    sort_keys=True), response.json()
         
-            try:        
-                url = f"http://api.nbp.pl/api/cenyzlota/last/{topCount}"
-                response = requests.get(url)
-            except HTTPError as http_error:
-                print(f'HTTP error: {http_error}')
-            except Exception as e:
-                print(f'Other exception: {e}')
-            else:
-                if response.status_code == 200:
-                    return json.dumps(
-                        response.json(),
-                        indent=4,
-                        sort_keys=True), response.json()
-        #Pobieranie informacji o cenie waluty
-        def get_rates_of_currency(topCount):
-            currency = ['USD', 'GBP', 'EUR']
-            for i in range(len(currency)):
-                try:
-                    table = "A"                
-                    url = f"http://api.nbp.pl/api/exchangerates/rates/{table}/{currency[i]}/last/{topCount}/"
-                    response = requests.get(url)
-                except HTTPError as http_error:
-                    print(f'HTTP error: {http_error}')
-                except Exception as e:
-                    print(f'Other exception: {e}')
-                else:
-                    if response.status_code == 200:
-                        return json.dumps(
-                            response.json(),
-                            indent=4,
-                            sort_keys=True), response.json()
-            
-        if __name__ == '__main__':
-    # JSON jako string oraz JSON
-            json_caly, Gold = get_rates_of_gold(topCount)
-            # Kurs Złota z <topCount> dni.
-            
-            print('a teraz currency')    
-            json_caly1, Dol = get_rates_of_currency(topCount)
-            
-            #print(json_caly1)
-        # Kursy USD z <rates_number> dni.
-            for i in range(len(Gold)):
-                insertVaribleIntoTable(Gold[i]['cena'],Gold[i]['data'],'CURRENCY',Dol['rates'][i]['mid'], Dol['rates'][i]['effectiveDate'])
-            print()
+    if __name__ == '__main__':
+# JSON jako string oraz JSON
+        print('ZŁOTO')
+        json_caly, Gold = get_rates_of_gold(topCount)
+        # Kurs Złota z <topCount> dni.
+        
+        print('USD')    
+        json_caly1, Dol = get_rates_of_usd(topCount)
+        print('GBP')  
+        json_caly2, Gbp = get_rates_of_gbp(topCount)
+        print('EUR')  
+        json_caly3, Eur = get_rates_of_eur(topCount)
+        
+    # Wstawienie kursów dla USD, GBP, EUR do tabeli
+        for i in range(len(Gold)):
+            insertVaribleIntoTable(Gold[i]['cena'],Gold[i]['data'],'USD',Dol['rates'][i]['mid'], Dol['rates'][i]['effectiveDate'])
+        for i in range(len(Gold)):
+            insertVaribleIntoTable(Gold[i]['cena'],Gold[i]['data'],'GBP',Gbp['rates'][i]['mid'], Gbp['rates'][i]['effectiveDate'])
+        for i in range(len(Gold)):
+            insertVaribleIntoTable(Gold[i]['cena'],Gold[i]['data'],'EUR',Eur['rates'][i]['mid'], Eur['rates'][i]['effectiveDate'])
+        print()
     # Wstawianie pobranych wartości do bazy danych
 
     
@@ -159,7 +198,7 @@ if len(argv) == 2 and argv[1] == 'indi':
             for row in rows:
                 cur.execute(
                     "UPDATE GOLD SET WSKAZNIK = :wartosc_1 WHERE ID = :biezace_id",
-                    {"wartosc_1": row[1] / row[2],
+                    {"wartosc_1": round(row[1] / row[2], 2),
                     "biezace_id": row[0]}
                 )
             
@@ -171,7 +210,7 @@ if len(argv) == 2 and argv[1] == 'indi':
         # create a database connection
         conn = create_connection(database)
         with conn:
-            print("1. Query all GOLD")
+            print("Wyliczam i wprowadzam do bazy wskaznik GOLD/CURRENCY")
             create_indicator(conn)
 
 
